@@ -1,0 +1,33 @@
+package com.terra.main.service;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+
+@Service
+public class ProcessPensionService {
+	
+	@Autowired
+	private com.terra.main.dao.ProcessPensionRepository processPensionRepository;
+	
+	@Autowired
+	private RestTemplate template;
+
+	public TransactionResponse processPension(TransactionRequest request) {
+		
+		ProcessPensionInput pensionInput = request.getProcessPensionInput();
+		PensionerDetail pensionerDetail = request.getPensionerDetail();
+		
+		
+		
+		//client-side load balancing
+		PensionerDetail pensionerResponse = template.postForObject("http://PENSIONDETAIL-SERVICE/PensionerDetailByAadhaar/{aadhaarNumber}", pensionerDetail,
+				PensionerDetail.class);
+		
+		
+		return new TransactionResponse(pensionInput,pensionerResponse);
+	}
+	
+}
